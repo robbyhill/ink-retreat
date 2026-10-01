@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # re-run manually after changing photos in ink-retreat-photos
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch photos from private repo
+        uses: actions/checkout@v4
+        with:
+          repository: robbyhill/ink-retreat-photos
+          token: ${{ secrets.PHOTOS_TOKEN }}
+          path: _photos
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site/photos
+          cp index.html style.css app.js _site/
+          cp _photos/photos/*.jpg _site/photos/
+          (cd _site/photos && ls *.jpg) | jq -R . | jq -s . > _site/photos.json
+          echo "Photos: $(jq length _site/photos.json)"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
