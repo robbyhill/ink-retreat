@@ -12,6 +12,7 @@ const pad = (n) => String(n).padStart(2, "0");
 const loaded = [];   // URLs that have finished downloading
 let queue = [];      // shuffled play order; refilled when empty
 let current = null;
+let finished = false; // once true, the finale photo stays put
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -22,7 +23,7 @@ function shuffle(arr) {
 }
 
 function nextPhoto() {
-  if (loaded.length === 0) return;
+  if (finished || loaded.length === 0) return;
   if (queue.length === 0) {
     queue = shuffle(loaded.slice());
     // avoid showing the same photo twice in a row across reshuffles
@@ -51,8 +52,6 @@ fetch("photos.json")
 new Image().src = "finale.jpg";
 
 // --- Countdown ---------------------------------------------------------------
-
-let finished = false;
 
 function tick() {
   const diff = PREVIEW ? 0 : TARGET - Date.now();
