@@ -1,7 +1,5 @@
 // Friday, January 15, 2027, 5:01 PM Eastern (EST, UTC-5)
 const TARGET = new Date("2027-01-15T17:01:00-05:00").getTime();
-// TEMPORARY: ?preview shows the BAR O'CLOCK screen now. Remove after previewing.
-const PREVIEW = new URLSearchParams(location.search).has("preview");
 
 const $ = (id) => document.getElementById(id);
 const pad = (n) => String(n).padStart(2, "0");
@@ -54,7 +52,7 @@ new Image().src = "finale.jpg";
 // --- Countdown ---------------------------------------------------------------
 
 function tick() {
-  const diff = PREVIEW ? 0 : TARGET - Date.now();
+  const diff = TARGET - Date.now();
 
   if (diff <= 0) {
     if (!finished) {
