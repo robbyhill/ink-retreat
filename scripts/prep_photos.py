@@ -3,8 +3,10 @@
 Usage:
     python3 scripts/prep_photos.py ~/Desktop/ink_photos ~/code/ink-retreat-photos/photos
 
-Each output file gets a random name, is at most 1600px on its long edge,
-and is re-encoded without EXIF/GPS data.
+    python3 scripts/prep_photos.py ~/Desktop/finale.jpeg ~/code/ink-retreat-photos/finale/finale.jpg
+
+Each output file gets a random name (or the given name, for a single file),
+is at most 1600px on its long edge, and is re-encoded without EXIF/GPS data.
 """
 
 import secrets
@@ -18,16 +20,24 @@ QUALITY = 80
 EXTS = {".jpg", ".jpeg", ".png", ".heic"}
 
 
+def prep(src: Path, out: Path) -> None:
+    with Image.open(src) as im:
+        im = ImageOps.exif_transpose(im)  # bake in rotation before dropping EXIF
+        im = im.convert("RGB")
+        im.thumbnail((MAX_EDGE, MAX_EDGE))
+        im.save(out, "JPEG", quality=QUALITY, optimize=True, progressive=True)
+
+
 def main(src: Path, dst: Path) -> None:
+    if src.is_file():
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        prep(src, dst)
+        print(f"Wrote {dst}")
+        return
     dst.mkdir(parents=True, exist_ok=True)
     files = sorted(p for p in src.iterdir() if p.suffix.lower() in EXTS)
     for p in files:
-        with Image.open(p) as im:
-            im = ImageOps.exif_transpose(im)  # bake in rotation before dropping EXIF
-            im = im.convert("RGB")
-            im.thumbnail((MAX_EDGE, MAX_EDGE))
-            out = dst / f"{secrets.token_hex(6)}.jpg"
-            im.save(out, "JPEG", quality=QUALITY, optimize=True, progressive=True)
+        prep(p, dst / f"{secrets.token_hex(6)}.jpg")
     print(f"Wrote {len(files)} photos to {dst}")
 
 

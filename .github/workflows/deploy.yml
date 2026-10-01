@@ -35,6 +35,7 @@ jobs:
           mkdir -p _site/photos
           cp index.html style.css app.js _site/
           cp _photos/photos/*.jpg _site/photos/
+          cp _photos/finale/finale.jpg _site/finale.jpg
           (cd _site/photos && ls *.jpg) | jq -R . | jq -s . > _site/photos.json
           echo "Photos: $(jq length _site/photos.json)"
 

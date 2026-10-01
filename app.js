@@ -45,6 +45,9 @@ fetch("photos.json")
   })
   .catch(() => {});
 
+// preload so it appears instantly at zero
+new Image().src = "finale.jpg";
+
 // --- Countdown ---------------------------------------------------------------
 
 let finished = false;
@@ -57,8 +60,7 @@ function tick() {
       finished = true;
       $("countdown").hidden = true;
       $("done").hidden = false;
-      $("bg").style.display = "none";
-      $("shade").style.display = "none";
+      $("bg").style.backgroundImage = 'url("finale.jpg")';
     }
     return;
   }
